@@ -90,6 +90,14 @@ len(panther_sorted_area)
 panther_sorted_area.sort_values('DATE_TIME_FIXED').groupby('CATNUMBER').plot(x = 'UTM83EAST', y = 'UTM83NORTH', marker = 'o', title = "Tester", legend = False)
 
 # %%
-# Separate dataframes based on construction period timeframes
+# Separate dataframes based on construction period timeframes. maybe do this after making geodataframe.
 
-# Find other area to act as control
+# Find other area to act as control and fix bounding box. maybe completely get rid of rows that have NA in date_time_fixed column
+
+# Make pandas dataframes into geodataframes. convert to crs that can calculate area
+
+# Calculate area for each region for each time period (pre, and different during construction periods).
+
+# Do ANOVA or t-tests comparing core area unit sizes. could also look at shape. figure out how to test data for assumptions.
+
+# Present data!
