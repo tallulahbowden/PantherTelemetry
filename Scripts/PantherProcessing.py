@@ -3,6 +3,7 @@
 import arcpy
 from pathlib import Path
 import pandas as pd
+import numpy as np
 
 #%%
 # Make relative paths
@@ -24,7 +25,12 @@ arcpy.env.overwriteOutput = True
 # Read in panther telemetry csv
 panther = pd.read_csv(pantherPath,
                       parse_dates = ['FLGTDATE', 'last_edited_date'],
-                      dtype = {'TIME' : str, 'CATNUMBER' : str, 'AGENCY' : str, 'COMMENTS' : str, 'UTM83EAST' : 'Int64', 'UTM83NORTH' : 'Int64'})
+                      dtype = {'TIME' : str, 
+                               'CATNUMBER' : str, 
+                               'AGENCY' : str, 
+                               'COMMENTS' : str, 
+                               'UTM83EAST' : 'Int64', 
+                               'UTM83NORTH' : 'Int64'})
 
 # Print dataframe
 panther
@@ -36,6 +42,36 @@ panther_dates_mask = panther['FLGTDATE'] > target_date
 panther_sorted_dates = panther.loc[panther_dates_mask]
 
 # %%
+panther_sorted_dates
+
+# %%
+# Clean up whitespace and convert to string
+raw_time = panther_sorted_dates['TIME'].astype(str).str.strip()
+
+# Format compact numbers (like '813' -> '08:13:00' and '0' -> '00:00:00')
+padded_compact = (
+    raw_time.str.zfill(4)
+    .str.wrap(2)
+    .str.replace('\n', ':', regex=False)
+    + ':00'
+)
+
+# Keep strings that already contain colons, otherwise use the formatted version
+panther_sorted_dates['TIME_FIXED'] = np.where(
+    raw_time.str.contains(':', regex=False),
+    raw_time,
+    padded_compact
+)
+
+
+
+# %%
+panther_sorted_dates['DATES_FIXED'] = pd.to_datetime(panther_sorted_dates['FLGTDATE']).dt.date
+# Combine date and time into single column
+panther_sorted_dates['DATE_TIME_FIXED'] = pd.to_datetime(
+    panther_sorted_dates['DATES_FIXED'].astype(str) + ' ' + panther_sorted_dates['TIME_FIXED'].astype(str),
+    errors = 'coerce',
+    utc=True)
 panther_sorted_dates
 
 # %%
@@ -51,11 +87,9 @@ panther_sorted_area = panther_sorted_dates.loc[panther_area_mask]
 len(panther_sorted_area)
 
 # %%
-panther_sorted_area.set_index('TIME').groupby('CATNUMBER').plot(x = 'UTM83EAST', y = 'UTM83NORTH', title = "Tester", legend = False)
+panther_sorted_area.sort_values('DATE_TIME_FIXED').groupby('CATNUMBER').plot(x = 'UTM83EAST', y = 'UTM83NORTH', marker = 'o', title = "Tester", legend = False)
 
 # %%
-# Get rid of datapoints with incorrect TIME values
-
 # Separate dataframes based on construction period timeframes
 
 # Find other area to act as control
