@@ -32,6 +32,10 @@ panther = pd.read_csv(pantherPath,
                                'UTM83EAST' : 'Int64', 
                                'UTM83NORTH' : 'Int64'})
 
+
+# Drop all rows that have NA values in the coordinates, flightdate, or time columns
+panther = panther.dropna(axis = 0, subset=(["X", "Y", "FLGTDATE", "TIME"]))
+
 # Print dataframe
 panther
 
@@ -90,14 +94,14 @@ len(panther_sorted_area)
 panther_sorted_area.sort_values('DATE_TIME_FIXED').groupby('CATNUMBER').plot(x = 'UTM83EAST', y = 'UTM83NORTH', marker = 'o', title = "Tester", legend = False)
 
 # %%
-# Separate dataframes based on construction period timeframes. maybe do this after making geodataframe.
+# 3. Separate dataframes based on construction period timeframes. maybe do this after making geodataframe.
 
-# Find other area to act as control and fix bounding box. maybe completely get rid of rows that have NA in date_time_fixed column
+# 1. Find other area to act as control and fix bounding box.
 
-# Make pandas dataframes into geodataframes. convert to crs that can calculate area
+# 2. Make pandas dataframes into geodataframes. convert to crs that can calculate area
 
-# Calculate area for each region for each time period (pre, and different during construction periods).
+# 4. Calculate area for each region for each time period (pre, and different during construction periods).
 
-# Do ANOVA or t-tests comparing core area unit sizes. could also look at shape. figure out how to test data for assumptions.
+# 5. Do ANOVA or t-tests comparing core area unit sizes. could also look at shape. figure out how to test data for assumptions.
 
-# Present data!
+# 6. Present data in jupyter notebook!
